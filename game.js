@@ -185,9 +185,12 @@ function startGame() {
     const controlsP1 = { left: 'KeyA', right: 'KeyD', up: 'KeyW', attack: 'KeyF', ranged: 'KeyG' };
     const controlsP2 = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', attack: 'Enter', ranged: 'Slash' };
 
+    const heartsElementP1 = document.getElementById('p1-hearts');
+    const heartsElementP2 = document.getElementById('p2-hearts');
+
     // Pass the HUD elements to the Player constructor
-    player1 = new Player(scene, new THREE.Vector3(-3, 2, 0), charDataP1.color, controlsP1, true, hudP1, hudP2);
-    player2 = new Player(scene, new THREE.Vector3(3, 2, 0), charDataP2.color, controlsP2, false, hudP1, hudP2);
+    player1 = new Player(scene, new THREE.Vector3(-3, 2, 0), charDataP1.color, controlsP1, true, hudP1, hudP2, heartsElementP1);
+    player2 = new Player(scene, new THREE.Vector3(3, 2, 0), charDataP2.color, controlsP2, false, hudP1, hudP2, heartsElementP2);
 
     setTimeout(() => {
         gameState = GameState.GAMEPLAY;

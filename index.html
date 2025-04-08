@@ -29,37 +29,95 @@
         .select-item.selected-p2 { border-color: orange; background-color: rgba(255, 165, 0, 0.3); }
         .ready-button { padding: 10px 20px; font-size: 1.2em; cursor: pointer; background-color: #3a3; border: none; color: white; border-radius: 5px; margin-top: 20px; }
         .ready-button:disabled { background-color: #555; cursor: not-allowed; }
-        .hud { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 1.5em; pointer-events: none; z-index: 5; }
+        
+        /* --- HUD & Health Bar Styling --- */
+        #health-bars-container {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around; /* Adjust as needed */
+            padding: 0 5%;
+            box-sizing: border-box;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .health-bar-wrapper {
+            display: flex;
+            align-items: center;
+            width: 40%; /* Adjust width as needed */
+            flex-direction: column; /* Stack elements vertically */
+        }
+        #p1-health-wrapper { align-items: flex-start; margin-left: 5%; } /* Align P1 to the left */
+        #p2-health-wrapper { align-items: flex-end; margin-right: 5%; } /* Align P2 to the right */
+        .heart.lost {
+        opacity: 0.2; /* Make lost hearts faded */
+        color: #888888; /* Or change color */
+    }
+        .player-info {
+             display: flex;
+             align-items: center;
+             width: 100%; /* Ensure info row takes full width */
+             margin-bottom: 5px; /* Space between info and health bar */
+        }
+        #p2-health-wrapper .player-info { flex-direction: row-reverse; } /* Reverse P2 info */
+
+        .player-name { color: white; font-size: 1.2em; margin: 0 10px; font-weight: bold; }
+        #p1-health-wrapper .player-name { order: 1; } /* Name first for P1 */
+        #p2-health-wrapper .player-name { order: 1; } /* Name first for P2 (adjust if needed) */
+
+        /* --- Heart Styles (NEW) --- */
+        .player-hearts {
+            display: flex;
+            gap: 4px; /* Space between hearts */
+            font-size: 2.8em; /* Adjust heart size */
+            line-height: 1; /* Prevent extra vertical space */
+            color: #ff4444; /* Heart color */
+             margin: 0 10px;
+        }
+        #p1-health-wrapper .player-hearts { order: 2; } /* Hearts second for P1 */
+        #p2-health-wrapper .player-hearts { order: 2; } /* Hearts second for P2 */
+
+        .heart.lost {
+            opacity: 0.2; /* Make lost hearts faded */
+            color: #888888; /* Or change color */
+        }
+        /* --- End Heart Styles --- */
+
+        .health-bar-background {
+            width: 100%; /* Bar takes full width of its column */
+            height: 20px; /* Adjust height */
+            background-color: #444;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .health-bar-foreground { /* ... existing ... */
+             position: absolute;
+             top: 0; left: 0; height: 100%; width: 100%;
+             background-color: #00cc00; border-radius: 3px;
+             transition: width 0.2s ease-out, background-color 0.2s ease-out;
+         }
+        #p2-health-wrapper .health-bar-foreground { left: auto; right: 0; } /* P2 bar fills from right */
+        .health-bar-foreground.medium-health { background-color: #cccc00; }
+        .health-bar-foreground.low-health { background-color: #cc0000; }
+
+        /* --- Old HUD Text (can be removed if hearts/bar are enough) --- */
+        .hud { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 1.9em; pointer-events: none; z-index: 5; }
         .hud-p1 { color: cyan; }
         .hud-p2 { color: orange; }
-        #health-bars-container { position: absolute;
-        top: 20px; /* Adjust vertical position */
-        left: 0; width: 100%; display: flex; justify-content: space-around; /* Or space-between, adjust as needed */
-        padding: 0 5%; /* Add some padding from screen edges */
-        box-sizing: border-box; z-index: 5; pointer-events: none; }
-        .health-bar-wrapper { display: flex; align-items: center; width: 40%; }
-        #p2-health-wrapper { flex-direction: row-reverse;}
-        .player-name {  color: white; font-size: 1.5em;  margin: 0 10px; font-weight: bold;  }
-        .health-bar-background {
-            flex-grow: 1; /* Bar takes remaining space */
-            height: 25px; /* Adjust height */
-            background-color: #444; /* Dark background for the bar */
-            border: 2px solid #ccc; /* Border around the bar */
-            border-radius: 5px;
-            position: relative; /* Needed for foreground positioning */
-            overflow: hidden;  }
-        .health-bar-foreground {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%; /* Start at full health */
-            background-color: #00cc00; /* Green for high health */
-            border-radius: 3px; /* Slightly smaller radius than background */
-            transition: width 0.2s ease-out, background-color 0.2s ease-out;   }
-        #p2-health-wrapper .health-bar-foreground { left: auto; right: 0;  }
-        .health-bar-foreground.medium-health { background-color: #cccc00;  }
-        .health-bar-foreground.low-health { background-color: #cc0000;  }
+
+         /* --- Game Over Screen (NEW) --- */
+        #game-over-overlay {
+            background-color: rgba(0, 0, 0, 0.9); /* Darker overlay */
+        }
+         #game-over-winner {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: yellow; /* Highlight winner */
+        }
 
     </style>
 </head>
@@ -83,14 +141,24 @@
 
     <div id="health-bars-container">
         <div class="health-bar-wrapper" id="p1-health-wrapper">
-            <span class="player-name">P1</span>
+            <div class="player-info">
+                <span class="player-name">P1</span>
+                 <div class="player-hearts" id="p1-hearts">
+                    <span class="heart">♥</span><span class="heart">♥</span><span class="heart">♥</span>
+                </div>
+            </div>
             <div class="health-bar-background">
                 <div class="health-bar-foreground" id="p1-health-bar"></div>
             </div>
         </div>
-    
+
         <div class="health-bar-wrapper" id="p2-health-wrapper">
-             <span class="player-name">P2</span>
+             <div class="player-info">
+                <span class="player-name">P2</span>
+                 <div class="player-hearts" id="p2-hearts">
+                    <span class="heart">♥</span><span class="heart">♥</span><span class="heart">♥</span>
+                </div>
+            </div>
             <div class="health-bar-background">
                 <div class="health-bar-foreground" id="p2-health-bar"></div>
             </div>
@@ -103,14 +171,15 @@
         <div id="hud-p2" class="hud-p2">P2: 0%</div>
     </div>
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js"
-        }
-    }
-    </script>
+     <div id="game-over-overlay" class="ui-overlay hidden">
+        <h2>Game Over!</h2>
+        <p id="game-over-winner">Winner!</p>
+        <button id="restart-button" class="ready-button">Play Again?</button>
+    </div>
 
+    <script type="importmap">
+        { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js" } }
+    </script>
     <script type="module" src="./js/game.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@ import {
 import { Projectile } from './projectile.js';
 
 export class Player {
-    constructor(scene, startPos, color, controls, isPlayer1, hudP1, hudP2) {
+    constructor(scene, startPos, color, controls, isPlayer1, hudP1, hudP2, heartsElement) {
         // ... (constructor code remains the same) ...
         this.scene = scene;
         this.controls = controls;
@@ -16,6 +16,7 @@ export class Player {
         this.color = color;
         this.hudP1 = hudP1;
         this.hudP2 = hudP2;
+        this.heartsElement = heartsElement;
 
         const geometry = new THREE.BoxGeometry(0.8, 1.5, 0.5);
         const material = new THREE.MeshLambertMaterial({ color: this.color });
@@ -30,6 +31,7 @@ export class Player {
         this.isOnGround = false;
 
         this.damagePercent = 0;
+        this.lives = 3;
         this.facingRight = true;
         this.isKnockedBack = false;
         this.knockbackTimer = 0;
@@ -44,6 +46,7 @@ export class Player {
         // --- Add a player identifier for easier debugging ---
         this.playerId = isPlayer1 ? "P1" : "P2";
         console.log(`${this.playerId} initialized.`);
+        this.updateHeartsUI(); 
     }
 
     // --- Main Update Method ---
@@ -299,12 +302,46 @@ export class Player {
 
     // --- Boundary Checks ---
     checkBoundaries(platforms) {
-         // ... (boundaries code remains the same) ...
-         if (this.mesh.position.y < -15) {
-            // --- DEBUG RESPAWN ---
-            console.log(`${this.playerId}: Fell off map. Resetting position.`);
+        if (this.mesh.position.y < -20) {
+            return this.loseLifeAndReset(platforms);
+        }
+        return true;
+    }
+
+    updateHeartsUI() {
+        if (!this.heartsElement) {
+            console.error(`${this.playerId}: heartsElement not found!`);
+            return;
+        }
+        // Get all the heart spans within this player's heart container
+        const heartSpans = this.heartsElement.querySelectorAll('.heart');
+
+        // Loop through the heart spans
+        heartSpans.forEach((heartSpan, index) => {
+            // If the index is less than the current number of lives, it's a full heart
+            if (index < this.lives) {
+                heartSpan.classList.remove('lost'); // Make sure it doesn't have the 'lost' class
+            } else {
+                // Otherwise, it's a lost heart
+                heartSpan.classList.add('lost'); // Add the 'lost' class
+            }
+        });
+    }
+
+    loseLifeAndReset(platforms) {
+        this.lives--; // <-- This is where the life is deducted!
+        this.updateHeartsUI();
+        console.log(`${this.playerId}: Lost a life. Lives remaining: ${this.lives}`);
+    
+        if (this.lives <= 0) {
+            console.log(`${this.playerId}: Out of lives!`);
+            return false; // Signal that the player is out
+        } else {
+            // Reset position and damage only if lives remain
             this.resetPosition(platforms);
-            this.damagePercent = 0;
+            this.damagePercent = 0; // Reset damage on respawn
+            this.updateHUD(); // Update damage text display
+            return true; // Signal successful reset
         }
     }
 
