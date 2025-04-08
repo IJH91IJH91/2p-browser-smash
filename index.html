@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOTR Smash Concept</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; color: white; }
+        canvas { display: block; }
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+        }
+        .hidden { display: none; }
+        .select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 20px; margin-bottom: 20px; max-width: 600px; }
+        .select-item { border: 2px solid #555; padding: 15px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+        .select-item:hover { background-color: #444; }
+        .select-item.selected-p1 { border-color: cyan; background-color: rgba(0, 255, 255, 0.3); }
+        .select-item.selected-p2 { border-color: orange; background-color: rgba(255, 165, 0, 0.3); }
+        .ready-button { padding: 10px 20px; font-size: 1.2em; cursor: pointer; background-color: #3a3; border: none; color: white; border-radius: 5px; margin-top: 20px; }
+        .ready-button:disabled { background-color: #555; cursor: not-allowed; }
+        .hud { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 1.5em; pointer-events: none; z-index: 5; }
+        .hud-p1 { color: cyan; }
+        .hud-p2 { color: orange; }
+    </style>
+</head>
+<body>
+    <div id="char-select-overlay" class="ui-overlay">
+        <h2>Character Select</h2>
+        <p>Player 1 (Cyan): Use mouse click | Player 2 (Orange): Use ctrl + mouse click</p>
+        <div id="char-grid" class="select-grid">
+        </div>
+        <button id="char-ready-button" class="ready-button" disabled>Select Characters</button>
+        <p id="char-select-status"></p>
+    </div>
+
+    <div id="map-select-overlay" class="ui-overlay hidden">
+        <h2>Map Select</h2>
+        <p>Click to select a map</p>
+        <div id="map-grid" class="select-grid">
+        </div>
+        <button id="map-ready-button" class="ready-button" disabled>Start Game</button>
+    </div>
+
+    <div id="hud" class="hud hidden">
+        <div id="hud-p1" class="hud-p1">P1: 0%</div>
+        <div id="hud-p2" class="hud-p2">P2: 0%</div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js"
+        }
+    }
+    </script>
+
+    <script type="module" src="./js/game.js"></script>
+</body>
+</html>
