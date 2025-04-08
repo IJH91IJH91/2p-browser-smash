@@ -1,19 +1,26 @@
 // config.js
-
-export const GRAVITY = 35;
 export const MOVE_SPEED = 8;
-export const JUMP_FORCE = 18;
+export const GRAVITY = 35;
+export const JUMP_FORCE = 15;
+export const AIR_FRICTION = 1.2;
+export const MAX_AIR_SPEED = 7;
+
+
 export const ATTACK_DAMAGE = 8;
-export const BASE_KNOCKBACK = 9;
-export const KNOCKBACK_SCALING = 0.2;
 export const ATTACK_RATE = 0.4;
 export const ATTACK_DURATION = 0.2;
 export const HITBOX_WIDTH = 1.2;
 export const HITBOX_HEIGHT = 0.6;
 export const HITBOX_OFFSET_X = 0.8;
+export const BASE_KNOCKBACK = 9;
 export const KNOCKBACK_CONTROL_LOCKOUT_DURATION = 0.25;
-export const AIR_FRICTION = 1.2;
-export const MAX_AIR_SPEED = 7;
+export const KNOCKBACK_SCALING = 0.2;
+
+export const RANGED_ATTACK_RATE = 1.0; // Seconds between shots
+export const PROJECTILE_SPEED = 15;
+export const PROJECTILE_DAMAGE = 5;
+export const PROJECTILE_KNOCKBACK = 3; // Base knockback for projectile
+export const PROJECTILE_LIFETIME = 2;
 
 export const GameState = {
     CHARACTER_SELECT: 'CHARACTER_SELECT',

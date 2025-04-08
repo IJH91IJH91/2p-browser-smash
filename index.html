@@ -32,6 +32,35 @@
         .hud { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 1.5em; pointer-events: none; z-index: 5; }
         .hud-p1 { color: cyan; }
         .hud-p2 { color: orange; }
+        #health-bars-container { position: absolute;
+        top: 20px; /* Adjust vertical position */
+        left: 0; width: 100%; display: flex; justify-content: space-around; /* Or space-between, adjust as needed */
+        padding: 0 5%; /* Add some padding from screen edges */
+        box-sizing: border-box; z-index: 5; pointer-events: none; }
+        .health-bar-wrapper { display: flex; align-items: center; width: 40%; }
+        #p2-health-wrapper { flex-direction: row-reverse;}
+        .player-name {  color: white; font-size: 1.5em;  margin: 0 10px; font-weight: bold;  }
+        .health-bar-background {
+            flex-grow: 1; /* Bar takes remaining space */
+            height: 25px; /* Adjust height */
+            background-color: #444; /* Dark background for the bar */
+            border: 2px solid #ccc; /* Border around the bar */
+            border-radius: 5px;
+            position: relative; /* Needed for foreground positioning */
+            overflow: hidden;  }
+        .health-bar-foreground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%; /* Start at full health */
+            background-color: #00cc00; /* Green for high health */
+            border-radius: 3px; /* Slightly smaller radius than background */
+            transition: width 0.2s ease-out, background-color 0.2s ease-out;   }
+        #p2-health-wrapper .health-bar-foreground { left: auto; right: 0;  }
+        .health-bar-foreground.medium-health { background-color: #cccc00;  }
+        .health-bar-foreground.low-health { background-color: #cc0000;  }
+
     </style>
 </head>
 <body>
@@ -51,6 +80,23 @@
         </div>
         <button id="map-ready-button" class="ready-button" disabled>Start Game</button>
     </div>
+
+    <div id="health-bars-container">
+        <div class="health-bar-wrapper" id="p1-health-wrapper">
+            <span class="player-name">P1</span>
+            <div class="health-bar-background">
+                <div class="health-bar-foreground" id="p1-health-bar"></div>
+            </div>
+        </div>
+    
+        <div class="health-bar-wrapper" id="p2-health-wrapper">
+             <span class="player-name">P2</span>
+            <div class="health-bar-background">
+                <div class="health-bar-foreground" id="p2-health-bar"></div>
+            </div>
+        </div>
+    </div>
+    
 
     <div id="hud" class="hud hidden">
         <div id="hud-p1" class="hud-p1">P1: 0%</div>

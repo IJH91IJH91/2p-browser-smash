@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { GameState, CHARACTERS, MAPS } from './config.js';
 import { Player } from './player.js';
+import { Projectile } from './projectile.js';
 
 let scene, camera, renderer, clock, inputHandler;
 let gameState = GameState.CHARACTER_SELECT;
@@ -11,6 +12,7 @@ let platforms = [];
 let selectedCharP1 = null;
 let selectedCharP2 = null;
 let selectedMap = null;
+let projectiles = [];
 
 const charSelectOverlay = document.getElementById('char-select-overlay');
 const mapSelectOverlay = document.getElementById('map-select-overlay');
@@ -26,10 +28,17 @@ const hudP2 = document.getElementById('hud-p2');
 class InputHandler {
     constructor() {
         this.keys = {};
+        this.prevKeys = {};
         window.addEventListener('keydown', (e) => { this.keys[e.code] = true; });
         window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
     }
-    isDown(keyCode) { return this.keys[keyCode] === true; }
+    // Call this at the END of your main game loop (animate function)
+    updatePrevKeys() { this.prevKeys = { ...this.keys };     }
+    isDown(keyCode) {  return this.keys[keyCode] === true;    }
+    wasJustPressed(keyCode) {
+        return this.keys[keyCode] === true && this.prevKeys[keyCode] === false;
+    } 
+
 }
 
 function init() {
@@ -173,8 +182,8 @@ function startGame() {
         platforms.push(platform);
     });
 
-    const controlsP1 = { left: 'KeyA', right: 'KeyD', up: 'KeyW', attack: 'KeyF' };
-    const controlsP2 = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', attack: 'Enter' };
+    const controlsP1 = { left: 'KeyA', right: 'KeyD', up: 'KeyW', attack: 'KeyF', ranged: 'KeyG' };
+    const controlsP2 = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', attack: 'Enter', ranged: 'Slash' };
 
     // Pass the HUD elements to the Player constructor
     player1 = new Player(scene, new THREE.Vector3(-3, 2, 0), charDataP1.color, controlsP1, true, hudP1, hudP2);
@@ -222,17 +231,48 @@ function updateUIState() {
 
 function animate() {
     requestAnimationFrame(animate);
-    const deltaTime = Math.min(clock.getDelta(), 0.1); // Clamp delta time to prevent large jumps
+    const deltaTime = Math.min(clock.getDelta(), 0.1);//prevents large jumps
 
+    // --- Update Projectiles ---
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        const proj = projectiles[i];
+        proj.update(deltaTime);
+
+        // Check collision with players
+        let hit = false;
+        if (player1 && proj.owner !== player1 && proj.mesh.userData.box.intersectsBox(player1.hurtBox)) {
+           player1.applyProjectileHit(proj); // Need to add this method to Player
+           hit = true;
+        } else if (player2 && proj.owner !== player2 && proj.mesh.userData.box.intersectsBox(player2.hurtBox)) {
+           player2.applyProjectileHit(proj); // Need to add this method to Player
+           hit = true;
+        }
+        // Check collision with platforms (optional: destroy on impact)
+        if (!hit) {
+            for (const platform of platforms) {
+                if (proj.mesh.userData.box.intersectsBox(platform.userData.box)) {
+                    hit = true;
+                    break; // Stop checking platforms once hit
+        }            }        }
+        // Remove projectile if it hit something or lifetime expired
+        if (hit || proj.lifetime <= 0) {
+            scene.remove(proj.mesh); // Remove visual from scene
+            // proj.mesh.geometry.dispose(); // Optional cleanup
+            // proj.mesh.material.dispose(); // Optional cleanup
+            projectiles.splice(i, 1); // Remove from array
+    }    }
+
+    // --- Update Players ---
     if (gameState === GameState.GAMEPLAY && player1 && player2) {
-        player1.update(deltaTime, inputHandler, platforms, player2);
-        player2.update(deltaTime, inputHandler, platforms, player1);
-
-        // Game Over logic could go here
+        player1.update(deltaTime, inputHandler, platforms, player2, projectiles);
+        player2.update(deltaTime, inputHandler, platforms, player1, projectiles);
     }
-
     renderer.render(scene, camera);
+
+    inputHandler.updatePrevKeys();
 }
+
+   
 
 function onWindowResize() {
     const newAspectRatio = window.innerWidth / window.innerHeight;
@@ -247,6 +287,7 @@ function onWindowResize() {
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 
 // Start the application
 init();
